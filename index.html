@@ -401,8 +401,8 @@
               tradeValue:
                 bourseData.marketOverview.marketActivityQTotCap / 1000000000,
               topInfluence: bourseEffectSTR || "ناموجود",
-              topGain: getTop7LvaGain(borselist) || "ناموجود",
-              topLoss: getTop7LvaLoss(borselist) || "ناموجود",
+              topGain: getTop10LvaGain(borselist) || "ناموجود",
+              topLoss: getTop10LvaLoss(borselist) || "ناموجود",
             },
             farabourse: {
               index: farabourseData.marketOverview.indexLastValue,
@@ -417,8 +417,8 @@
                 farabourseData.marketOverview.marketActivityQTotCap /
                 1000000000,
               topInfluence: farabourseEffectSTR || "ناموجود",
-              topGain: getTop7LvaGain(faraborselist) || "ناموجود",
-              topLoss: getTop7LvaLoss(faraborselist) || "ناموجود",
+              topGain: getTop10LvaGain(faraborselist) || "ناموجود",
+              topLoss: getTop10LvaLoss(faraborselist) || "ناموجود",
             },
             date: convertToJalaliDate(
               bourseData.marketOverview.marketActivityDEven

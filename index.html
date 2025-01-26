@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>گزارش روزانه بازارها</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="scripts.js"></script>
+    <style>
+      .negative {
+        color: #ef4444;
+      }
+      .positive {
+        color: #22c55e;
+      }
+
+      @font-face {
+        font-family: "iransans";
+        src: url("font/iransans.ttf") format("truetype");
+      }
+
+      * {
+        font-family: iransans, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 p-6">
+    <div class="max-w-6xl mx-auto space-y-6">
+      <!-- هدر اصلی -->
+      <div class="bg-white rounded-xl p-6 shadow-lg">
+        <h1 class="text-3xl font-black text-gray-800 text-center mb-2">
+          گزارش روزانه بازارها
+        </h1>
+        <p class="text-center text-gray-500 text-lg" id="current-date">
+          1403/10/10 دوشنبه
+        </p>
+        <div class="grid grid-cols-4 gap-4">
+          <div
+            class="bg-gray-200 flex justify-between items-center p-3 rounded-lg shadow-sm"
+          >
+            <span class="text-gray-500">وضعیت بازار </span>
+            <span class="font-medium" id="market-status">بسته</span>
+          </div>
+          <div class="col-span-2"></div>
+          <div
+            class="bg-gray-200 flex justify-between items-center p-3 rounded-lg shadow-sm"
+          >
+            <span class="text-gray-500">ساعت</span>
+            <span class="text-indigo-600" id="current-time">09:08:11</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- جدول اصلی -->
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th
+                colspan="4"
+                class="text-center align-middle bg-indigo-50 p-4 text-indigo-600 font-bold border-b-2 border-indigo-100"
+              >
+                بورس
+              </th>
+              <th
+                colspan="4"
+                class="text-center align-middle bg-purple-50 p-4 text-purple-600 font-bold border-b-2 border-purple-100"
+              >
+                فرابورس
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-gray-200">
+            <!-- ردیف داده‌ها -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                شاخص کل
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="bourse-index"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                شاخص کل
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="farabourse-index"
+              >
+                123
+              </td>
+            </tr>
+
+            <!-- ردیف تغییرات -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                تغییر شاخص
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg"
+                id="bourse-change"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                تغییر شاخص
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg"
+                id="farabourse-change"
+              >
+                123
+              </td>
+            </tr>
+
+            <!-- ردیف ارزش بازار -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                ارزش بازار (میلیارد ریال)
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="bourse-market-value"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                ارزش بازار (میلیارد ریال)
+              </td>
+              <td
+                colspan="1"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+              >
+                بازار اول و دوم
+                <br />
+                <span id="farabourse-market-first">123</span>
+              </td>
+              <td
+                colspan="1"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+              >
+                بازار پایه
+                <br />
+                <span id="farabourse-market-base">123</span>
+              </td>
+            </tr>
+
+            <!-- ردیف ارزش معاملات -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                ارزش معاملات (میلیارد ریال)
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="bourse-trade-value"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                ارزش معاملات (میلیارد ریال)
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="farabourse-trade-value"
+              >
+                123
+              </td>
+            </tr>
+
+            <!-- بیشترین تاثیر در شاخص -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین تاثیر در شاخص
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="bourse-top-influence"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین تاثیر در شاخص
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="farabourse-top-influence"
+              >
+                123
+              </td>
+            </tr>
+
+            <!-- بیشترین افزایش قیمت -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین افزایش قیمت
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="bourse-top-gain"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین افزایش قیمت
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="farabourse-top-gain"
+              >
+                123
+              </td>
+            </tr>
+
+            <!-- بیشترین کاهش قیمت -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین کاهش قیمت
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="bourse-top-loss"
+              >
+                123
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین کاهش قیمت
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-lg text-gray-700"
+                id="farabourse-top-loss"
+              >
+                123
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const config = {
+        currencyFormatter: new Intl.NumberFormat("fa-IR"),
+        timeFormatter: new Intl.DateTimeFormat("fa-IR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }),
+      };
+
+      const apiUrls = {
+        bourse: "https://cdn.tsetmc.com/api/MarketData/GetMarketOverview/1",
+        farabourse: "https://cdn.tsetmc.com/api/MarketData/GetMarketOverview/2",
+        bourseEffect: "https://cdn.tsetmc.com/api/Index/GetInstEffect/0/1/5",
+        farabourseEffect:
+          "https://cdn.tsetmc.com/api/Index/GetInstEffect/0/2/5",
+        borselist:
+          "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=1&industrialGroup=&paperTypes%5B0%5D=1&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
+        faraborselist:
+          "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=2&industrialGroup=&paperTypes%5B0%5D=1&paperTypes%5B1%5D=2&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
+        ekhtiarlist:
+          "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&paperTypes%5B0%5D=6&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
+      };
+
+      const requestHeaders = {
+        Accept: "*/*",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Accept-Language": "en-US,en;q=0.9,fa-IR;q=0.8,fa;q=0.7",
+        Connection: "keep-alive",
+        Host: "cdn.tsetmc.com",
+        Origin: "http://213.233.177.145:2424",
+        "Sec-CH-UA":
+          '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        "Sec-CH-UA-Mobile": "?1",
+        "Sec-CH-UA-Platform": '"Android"',
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "cross-site",
+        "User-Agent":
+          "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36",
+      };
+
+      async function fetchApi(url) {
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+            headers: requestHeaders,
+          });
+          if (!response.ok) {
+            throw new Error(`خطا در فراخوانی API: ${url}`);
+          }
+          return await response.json();
+        } catch (error) {
+          console.error(error);
+          alert("مشکل در دریافت داده‌های بازار");
+          return null;
+        }
+      }
+
+      async function fetchDataSequentially() {
+        try {
+          // ارسال درخواست‌ها به ترتیب و دریافت داده‌ها
+          const bourseData = await fetchApi(apiUrls.bourse);
+          console.log(bourseData);
+          if (!bourseData) throw new Error("دریافت داده‌های بورس شکست خورد");
+
+          const farabourseData = await fetchApi(apiUrls.farabourse);
+          console.log(farabourseData);
+          if (!farabourseData)
+            throw new Error("دریافت داده‌های فرابورس شکست خورد");
+
+          const bourseEffect = await fetchApi(apiUrls.bourseEffect);
+          const bourseEffectSTR = bourseEffect.instEffect
+            .map((item) => item.instrument.lVal18AFC)
+            .join(" - ");
+
+          console.log(bourseEffectSTR);
+          if (!bourseEffect)
+            throw new Error("دریافت اثرات نماد بورس شکست خورد");
+
+          const farabourseEffect = await fetchApi(apiUrls.farabourseEffect);
+          const farabourseEffectSTR = farabourseEffect.instEffect
+            .map((item) => item.instrument.lVal18AFC)
+            .join(" - ");
+
+          console.log(farabourseEffectSTR);
+          if (!farabourseEffect)
+            throw new Error("دریافت اثرات نماد فرابورس شکست خورد");
+
+          const borselist = await fetchApi(apiUrls.borselist);
+          // console.log(borselist);
+          if (!borselist) throw new Error("دریافت داده‌های بورس شکست خورد");
+
+          const faraborselist = await fetchApi(apiUrls.faraborselist);
+          // console.log(faraborselist);
+          if (!borselist) throw new Error("دریافت داده‌های بورس شکست خورد");
+
+          // بازگشت داده‌ها در قالب یک ساختار یکپارچه
+          return {
+            bourse: {
+              index: bourseData.marketOverview.indexLastValue,
+              change: bourseData.marketOverview.indexChange,
+              marketValue: bourseData.marketOverview.marketValue / 1000000000,
+              tradeValue:
+                bourseData.marketOverview.marketActivityQTotCap / 1000000000,
+              topInfluence: bourseEffectSTR || "ناموجود",
+              topGain: getTop7LvaGain(borselist) || "ناموجود",
+              topLoss: getTop7LvaLoss(borselist) || "ناموجود",
+            },
+            farabourse: {
+              index: farabourseData.marketOverview.indexLastValue,
+              change: farabourseData.marketOverview.indexChange,
+              marketValue: {
+                firstSecondMarket:
+                  farabourseData.marketOverview.marketValue / 1000000000,
+                baseMarket:
+                  farabourseData.marketOverview.marketValueBase / 1000000000,
+              },
+              tradeValue:
+                farabourseData.marketOverview.marketActivityQTotCap /
+                1000000000,
+              topInfluence: farabourseEffectSTR || "ناموجود",
+              topGain: getTop7LvaGain(faraborselist) || "ناموجود",
+              topLoss: getTop7LvaLoss(faraborselist) || "ناموجود",
+            },
+            date: convertToJalaliDate(
+              bourseData.marketOverview.marketActivityDEven
+            ),
+            time: convertToReadableTime(
+              bourseData.marketOverview.marketActivityHEven
+            ),
+            marketStatus: bourseData.marketOverview.marketStateTitle,
+          };
+        } catch (error) {
+          console.error("خطا در دریافت داده:", error);
+          alert("مشکل در تجمیع داده‌های بازار");
+          return null;
+        }
+      }
+
+      function updateMarketStatus(status) {
+        const statusEl = document.getElementById("market-status");
+        statusEl.textContent = status;
+        statusEl.className = `font-medium ${status === "باز" ? "positive" : "negative"}`;
+      }
+
+      function formatNumber(number) {
+        return config.currencyFormatter.format(number || 0);
+      }
+
+      function updateUI(data) {
+        if (!data) return;
+
+        // بخش هدر
+        document.getElementById("current-date").textContent = data.date;
+        document.getElementById("current-time").textContent = data.time;
+        updateMarketStatus(data.marketStatus);
+
+        // بخش بورس
+        document.getElementById("bourse-index").textContent = formatNumber(
+          data.bourse.index
+        );
+        document.getElementById("bourse-change").textContent = formatNumber(
+          data.bourse.change
+        );
+        document
+          .getElementById("bourse-change")
+          .classList.add(data.bourse.change < 0 ? "negative" : "positive");
+        document.getElementById("bourse-market-value").textContent =
+          formatNumber(data.bourse.marketValue);
+        document.getElementById("bourse-trade-value").textContent =
+          formatNumber(data.bourse.tradeValue);
+        document.getElementById("bourse-top-influence").textContent =
+          data.bourse.topInfluence;
+        document.getElementById("bourse-top-gain").textContent =
+          data.bourse.topGain;
+        document.getElementById("bourse-top-loss").textContent =
+          data.bourse.topLoss;
+
+        // بخش فرابورس
+        document.getElementById("farabourse-index").textContent = formatNumber(
+          data.farabourse.index
+        );
+        document.getElementById("farabourse-change").textContent = formatNumber(
+          data.farabourse.change
+        );
+        document
+          .getElementById("farabourse-change")
+          .classList.add(data.farabourse.change < 0 ? "negative" : "positive");
+        document.getElementById("farabourse-market-first").textContent =
+          formatNumber(data.farabourse.marketValue.firstSecondMarket);
+        document.getElementById("farabourse-market-base").textContent =
+          formatNumber(data.farabourse.marketValue.baseMarket);
+        document.getElementById("farabourse-trade-value").textContent =
+          formatNumber(data.farabourse.tradeValue);
+        document.getElementById("farabourse-top-influence").textContent =
+          data.farabourse.topInfluence;
+        document.getElementById("farabourse-top-gain").textContent =
+          data.farabourse.topGain;
+        document.getElementById("farabourse-top-loss").textContent =
+          data.farabourse.topLoss;
+      }
+
+      async function init() {
+        try {
+          const data = await fetchDataSequentially();
+          console.log(data);
+          if (!data) throw new Error("داده‌ای دریافت نشد");
+          updateUI(data);
+        } catch (error) {
+          console.error("خطا در دریافت داده:", error);
+          alert("خطا در دریافت اطلاعات بازار");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>

@@ -56,24 +56,24 @@ function convertToReadableTime(marketActivityHEven) {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function getTop7LvaGain(data) {
+function getTop10LvaGain(data) {
   const filteredItems = data.marketwatch.filter(
     (item) => item.pmx === item.pmo
   );
   const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
-  const top7Lva = sortedByQtc.slice(0, 7).map((item) => item.lva);
-  const resultString = top7Lva.join(" ");
+  const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);
+  const resultString = top10Lva.join(" - ");
 
   return resultString;
 }
 
-function getTop7LvaLoss(data) {
+function getTop10LvaLoss(data) {
   const filteredItems = data.marketwatch.filter(
     (item) => item.pmn === item.pmo
   );
   const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
-  const top7Lva = sortedByQtc.slice(0, 7).map((item) => item.lva);
-  const resultString = top7Lva.join(" ");
+  const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);
+  const resultString = top10Lva.join(" - ");
 
   return resultString;
 }

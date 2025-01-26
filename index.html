@@ -265,6 +265,185 @@
           </tbody>
         </table>
       </div>
+
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th
+                colspan="8"
+                class="text-center align-middle bg-green-50 p-4 text-green-600 font-bold border-b-2 border-green-100"
+              >
+                آمارها
+              </th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-gray-200">
+            <!-- ردیف داده‌ها -->
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                شاخص30 شركت بزرگ
+                <br />
+                <span>123</span>
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="bourse-index"
+              >
+                شاخص 50 شركت فعال تر
+                <br />
+                <span>123</span>
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                شاخص قیمت (هم وزن)
+                <br />
+                <span>123</span>
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="farabourse-index"
+              >
+                شاخص صنعت
+                <br />
+                <span>123</span>
+                <br />
+                <span>123</span>
+              </td>
+            </tr>
+
+            <!-- ردیف تغییرات -->
+            <tr>
+              <td
+                colspan="4"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                برترین گروه های صنعت
+                <br />
+                <span id="top-sanat">123</span>
+              </td>
+              <td
+                colspan="4"
+                class="text-center align-middle p-4 text-gray-600"
+                id="bourse-change"
+              >
+                بیشترین ارزش معامالتی
+                <br />
+                <span>123</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                صف خرید
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="bourse-index"
+              >
+                صف فروش
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                برترین تقاضا در بورس
+                <br />
+
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="farabourse-index"
+              >
+                برترین عرضه در بورس
+                <br />
+                <span>123</span>
+              </td>
+            </tr>
+            <tr>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                ارزش صف های خرید (میلیارد تومان)
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="bourse-index"
+              >
+                ارزش صف های فروش (میلیارد تومان)
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                بیشترین ورود پول حقیقی
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="farabourse-index"
+              >
+                بیشترین خروج پول حقیقی
+                <br />
+                <span>123</span>
+              </td>
+            </tr>
+
+            <!-- ردیف تغییرات -->
+            <tr>
+              <td
+                colspan="4"
+                class="text-center align-middle p-4 text-gray-600"
+              >
+                سنگین ترین صف های خرید
+                <br />
+                <span>123</span>
+              </td>
+              <td
+                colspan="4"
+                class="text-center align-middle p-4 text-gray-600"
+                id="bourse-change"
+              >
+                سنگین ترین صف های فروش
+                <br />
+                <span>123</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script>
@@ -289,6 +468,7 @@
           "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=2&industrialGroup=&paperTypes%5B0%5D=1&paperTypes%5B1%5D=2&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
         ekhtiarlist:
           "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&paperTypes%5B0%5D=6&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
+        sanat: "https://cdn.tsetmc.com/api/MarketData/GetSectorTop/5",
       };
 
       const requestHeaders = {
@@ -330,11 +510,11 @@
         try {
           // ارسال درخواست‌ها به ترتیب و دریافت داده‌ها
           const bourseData = await fetchApi(apiUrls.bourse);
-          console.log(bourseData);
+          // console.log(bourseData);
           if (!bourseData) throw new Error("دریافت داده‌های بورس شکست خورد");
 
           const farabourseData = await fetchApi(apiUrls.farabourse);
-          console.log(farabourseData);
+          // console.log(farabourseData);
           if (!farabourseData)
             throw new Error("دریافت داده‌های فرابورس شکست خورد");
 
@@ -343,7 +523,7 @@
             .map((item) => item.instrument.lVal18AFC)
             .join(" - ");
 
-          console.log(bourseEffectSTR);
+          // console.log(bourseEffectSTR);
           if (!bourseEffect)
             throw new Error("دریافت اثرات نماد بورس شکست خورد");
 
@@ -352,7 +532,7 @@
             .map((item) => item.instrument.lVal18AFC)
             .join(" - ");
 
-          console.log(farabourseEffectSTR);
+          // console.log(farabourseEffectSTR);
           if (!farabourseEffect)
             throw new Error("دریافت اثرات نماد فرابورس شکست خورد");
 
@@ -364,6 +544,10 @@
           // console.log(faraborselist);
           if (!borselist) throw new Error("دریافت داده‌های بورس شکست خورد");
 
+          const sanat = await fetchApi(apiUrls.sanat);
+          const sanatSTR = sanat.sectorTop
+            .map((item) => item.lVal30.split("-")[1])
+            .join(" - ");
           // بازگشت داده‌ها در قالب یک ساختار یکپارچه
           return {
             bourse: {
@@ -399,6 +583,7 @@
               bourseData.marketOverview.marketActivityHEven
             ),
             marketStatus: bourseData.marketOverview.marketStateTitle,
+            sanat: sanatSTR,
           };
         } catch (error) {
           console.error("خطا در دریافت داده:", error);
@@ -468,12 +653,13 @@
           data.farabourse.topGain;
         document.getElementById("farabourse-top-loss").textContent =
           data.farabourse.topLoss;
+
+        document.getElementById("top-sanat").textContent = data.sanat;
       }
 
       async function init() {
         try {
           const data = await fetchDataSequentially();
-          console.log(data);
           if (!data) throw new Error("داده‌ای دریافت نشد");
           updateUI(data);
         } catch (error) {

@@ -58,7 +58,7 @@ function convertToReadableTime(marketActivityHEven) {
 
 function getTop10LvaGain(data) {
   const filteredItems = data.marketwatch.filter(
-    (item) => item.pmx === item.pdv
+    (item) => item.pmx === item.pdv && !/\d/.test(item.lva)
   );
   const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
   const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);
@@ -69,7 +69,7 @@ function getTop10LvaGain(data) {
 
 function getTop10LvaLoss(data) {
   const filteredItems = data.marketwatch.filter(
-    (item) => item.pmn === item.pdv
+    (item) => item.pmn === item.pdv && !/\d/.test(item.lva)
   );
   const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
   const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);

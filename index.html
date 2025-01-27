@@ -288,9 +288,9 @@
               >
                 شاخص30 شركت بزرگ
                 <br />
-                <span>123</span>
+                <span id="0-indexes-value">123</span>
                 <br />
-                <span>123</span>
+                <span id="0-indexes-change">123</span>
               </td>
               <td
                 colspan="2"
@@ -299,9 +299,9 @@
               >
                 شاخص 50 شركت فعال تر
                 <br />
-                <span>123</span>
+                <span id="1-indexes-value">123</span>
                 <br />
-                <span>123</span>
+                <span id="1-indexes-change">123</span>
               </td>
               <td
                 colspan="2"
@@ -309,9 +309,9 @@
               >
                 شاخص قیمت (هم وزن)
                 <br />
-                <span>123</span>
+                <span id="2-indexes-value">123</span>
                 <br />
-                <span>123</span>
+                <span id="2-indexes-change">123</span>
               </td>
               <td
                 colspan="2"
@@ -320,9 +320,9 @@
               >
                 شاخص صنعت
                 <br />
-                <span>123</span>
+                <span id="3-indexes-value">123</span>
                 <br />
-                <span>123</span>
+                <span id="3-indexes-change">123</span>
               </td>
             </tr>
 
@@ -469,6 +469,7 @@
         ekhtiarlist:
           "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&paperTypes%5B0%5D=6&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
         sanat: "https://cdn.tsetmc.com/api/MarketData/GetSectorTop/5",
+        indexes: "https://cdn.tsetmc.com/api/Index/GetIndexB1LastAll/All/1",
       };
 
       const requestHeaders = {
@@ -548,6 +549,11 @@
           const sanatSTR = sanat.sectorTop
             .map((item) => item.lVal30.split("-")[1])
             .join(" - ");
+
+          const indexes = await fetchApi(apiUrls.indexes);
+          const amarIndexes = extractSelectedIndexes(indexes);
+          console.log(amarIndexes);
+
           // بازگشت داده‌ها در قالب یک ساختار یکپارچه
           return {
             bourse: {
@@ -584,6 +590,7 @@
             ),
             marketStatus: bourseData.marketOverview.marketStateTitle,
             sanat: sanatSTR,
+            indexes: amarIndexes,
           };
         } catch (error) {
           console.error("خطا در دریافت داده:", error);
@@ -655,6 +662,47 @@
           data.farabourse.topLoss;
 
         document.getElementById("top-sanat").textContent = data.sanat;
+
+        document.getElementById("0-indexes-value").textContent =
+          data.indexes[0].index;
+        document.getElementById("0-indexes-change").textContent = formatNumber(
+          data.indexes[0].indexChange
+        );
+        document
+          .getElementById("0-indexes-change")
+          .classList.add(
+            data.indexes[0].indexChange < 0 ? "negative" : "positive"
+          );
+        document.getElementById("1-indexes-value").textContent =
+          data.indexes[1].index;
+        document.getElementById("1-indexes-change").textContent = formatNumber(
+          data.indexes[1].indexChange
+        );
+        document
+          .getElementById("1-indexes-change")
+          .classList.add(
+            data.indexes[1].indexChange < 0 ? "negative" : "positive"
+          );
+        document.getElementById("2-indexes-value").textContent =
+          data.indexes[2].index;
+        document.getElementById("2-indexes-change").textContent = formatNumber(
+          data.indexes[2].indexChange
+        );
+        document
+          .getElementById("2-indexes-change")
+          .classList.add(
+            data.indexes[2].indexChange < 0 ? "negative" : "positive"
+          );
+        document.getElementById("3-indexes-value").textContent =
+          data.indexes[3].index;
+        document.getElementById("3-indexes-change").textContent = formatNumber(
+          data.indexes[3].indexChange
+        );
+        document
+          .getElementById("3-indexes-change")
+          .classList.add(
+            data.indexes[3].indexChange < 0 ? "negative" : "positive"
+          );
       }
 
       async function init() {

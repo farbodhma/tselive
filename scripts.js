@@ -77,3 +77,26 @@ function getTop10LvaLoss(data) {
 
   return resultString;
 }
+
+function extractSelectedIndexes(data) {
+  const targetIndexes = [
+    "شاخص 30 شركت بزرگ",
+    "شاخص50شركت فعالتر",
+    "شاخص قيمت (هم وزن)",
+    "شاخص صنعت",
+  ];
+
+  const result = targetIndexes.reduce((acc, name, idx) => {
+    const item = data.indexB1.find((entry) => entry.lVal30 === name);
+    if (item) {
+      acc[idx] = {
+        name: name,
+        index: item.xDrNivJIdx004,
+        indexChange: item.indexChange,
+      };
+    }
+    return acc;
+  }, {});
+
+  return result;
+}

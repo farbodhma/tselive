@@ -343,7 +343,7 @@
               >
                 بیشترین ارزش معامالتی
                 <br />
-                <span>-</span>
+                <span id="most-value">-</span>
               </td>
             </tr>
 
@@ -462,6 +462,8 @@
         bourseEffect: "https://cdn.tsetmc.com/api/Index/GetInstEffect/0/1/10",
         farabourseEffect:
           "https://cdn.tsetmc.com/api/Index/GetInstEffect/0/2/10",
+        borsevafaraborsevasandogh:
+          "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[7]=8",
         borsevafarabors:
           "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2",
         borselist:
@@ -551,13 +553,19 @@
             .map((item) => item.lVal30.split("-")[1])
             .join(" - ");
 
+          const borsevafaraborsevasandogh = await fetchApi(
+            apiUrls.borsevafaraborsevasandogh
+          );
+          const mostvalue = getMarketTopValue(borsevafaraborsevasandogh);
+          // console.log(mostvalue);
+
           const indexes = await fetchApi(apiUrls.indexes);
           const amarIndexes = extractSelectedIndexes(indexes);
           // console.log(amarIndexes);
 
           const borsevafarabors = await fetchApi(apiUrls.borsevafarabors);
           const marketCount = getMarketCount(borsevafarabors);
-          console.log(marketCount);
+          // console.log(marketCount);
 
           // بازگشت داده‌ها در قالب یک ساختار یکپارچه
           return {
@@ -597,6 +605,7 @@
             sanat: sanatSTR,
             indexes: amarIndexes,
             marketCount: marketCount,
+            mostValue: mostvalue,
           };
         } catch (error) {
           console.error("خطا در دریافت داده:", error);
@@ -668,6 +677,7 @@
           data.farabourse.topLoss;
 
         document.getElementById("top-sanat").textContent = data.sanat;
+        document.getElementById("most-value").textContent = data.mostValue;
 
         document.getElementById("0-indexes-value").textContent =
           data.indexes[0].index;

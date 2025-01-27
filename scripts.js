@@ -78,6 +78,15 @@ function getTop10LvaLoss(data) {
   return resultString;
 }
 
+function getMarketTopValue(data) {
+  const filteredItems = data.marketwatch.filter((item) => !/\d/.test(item.lva));
+  const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
+  const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);
+  const resultString = top10Lva.join(" - ");
+
+  return resultString;
+}
+
 function extractSelectedIndexes(data) {
   const targetIndexes = [
     "شاخص 30 شركت بزرگ",

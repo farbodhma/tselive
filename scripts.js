@@ -58,7 +58,7 @@ function convertToReadableTime(marketActivityHEven) {
 
 function getTop10LvaGain(data) {
   const filteredItems = data.marketwatch.filter(
-    (item) => item.pmx === item.pmo
+    (item) => item.pmx === item.pdv
   );
   const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
   const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);
@@ -69,7 +69,7 @@ function getTop10LvaGain(data) {
 
 function getTop10LvaLoss(data) {
   const filteredItems = data.marketwatch.filter(
-    (item) => item.pmn === item.pmo
+    (item) => item.pmn === item.pdv
   );
   const sortedByQtc = filteredItems.sort((a, b) => b.qtc - a.qtc);
   const top10Lva = sortedByQtc.slice(0, 10).map((item) => item.lva);
@@ -99,4 +99,44 @@ function extractSelectedIndexes(data) {
   }, {});
 
   return result;
+}
+
+function getMarketCount(data) {
+  // متغیرهای مورد نیاز
+  let mosbat = 0;
+  let manfi = 0;
+  let safmosbat = 0;
+  let safmanfi = 0;
+  let arzeshsafmosbat = 0;
+  let arzeshsafmanfi = 0;
+
+  // پیمایش داده‌ها
+  data.marketwatch.forEach((i) => {
+    if (i.pc > 0) {
+      mosbat++;
+      // شرط برای صف مثبت
+      if (i.pdv == i.pmx) {
+        safmosbat++;
+        arzeshsafmosbat += i.blDs[0].qmd * i.blDs[0].pmd; // فرض بر این که مقدار قیمت در i.value است
+      }
+    }
+    if (i.pc < 0) {
+      manfi++;
+      // شرط برای صف منفی
+      if (i.pdv == i.pmn) {
+        safmanfi++;
+        arzeshsafmanfi += i.blDs[0].qmo * i.blDs[0].pmo; // فرض بر این که مقدار قیمت در i.value است
+      }
+    }
+  });
+
+  // خروجی نهایی
+  return {
+    mosbat,
+    manfi,
+    safmosbat,
+    safmanfi,
+    arzeshsafmosbat,
+    arzeshsafmanfi,
+  };
 }

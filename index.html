@@ -288,9 +288,9 @@
               >
                 شاخص30 شركت بزرگ
                 <br />
-                <span id="0-indexes-value">123</span>
+                <span id="0-indexes-value">-</span>
                 <br />
-                <span id="0-indexes-change">123</span>
+                <span id="0-indexes-change">-</span>
               </td>
               <td
                 colspan="2"
@@ -299,9 +299,9 @@
               >
                 شاخص 50 شركت فعال تر
                 <br />
-                <span id="1-indexes-value">123</span>
+                <span id="1-indexes-value">-</span>
                 <br />
-                <span id="1-indexes-change">123</span>
+                <span id="1-indexes-change">-</span>
               </td>
               <td
                 colspan="2"
@@ -309,9 +309,9 @@
               >
                 شاخص قیمت (هم وزن)
                 <br />
-                <span id="2-indexes-value">123</span>
+                <span id="2-indexes-value">-</span>
                 <br />
-                <span id="2-indexes-change">123</span>
+                <span id="2-indexes-change">-</span>
               </td>
               <td
                 colspan="2"
@@ -320,9 +320,9 @@
               >
                 شاخص صنعت
                 <br />
-                <span id="3-indexes-value">123</span>
+                <span id="3-indexes-value">-</span>
                 <br />
-                <span id="3-indexes-change">123</span>
+                <span id="3-indexes-change">-</span>
               </td>
             </tr>
 
@@ -334,7 +334,7 @@
               >
                 برترین گروه های صنعت
                 <br />
-                <span id="top-sanat">123</span>
+                <span id="top-sanat">-</span>
               </td>
               <td
                 colspan="4"
@@ -343,7 +343,7 @@
               >
                 بیشترین ارزش معامالتی
                 <br />
-                <span>123</span>
+                <span>-</span>
               </td>
             </tr>
 
@@ -352,9 +352,27 @@
                 colspan="2"
                 class="text-center align-middle p-4 text-gray-600"
               >
+                تعداد نماد های مثبت
+                <br />
+
+                <span id="mosbat">-</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+                id="farabourse-index"
+              >
+                تعداد نماد های منفی
+                <br />
+                <span id="manfi">-</span>
+              </td>
+              <td
+                colspan="2"
+                class="text-center align-middle p-4 text-gray-600"
+              >
                 صف خرید
                 <br />
-                <span>123</span>
+                <span id="saf-kharid">-</span>
               </td>
               <td
                 colspan="2"
@@ -363,25 +381,7 @@
               >
                 صف فروش
                 <br />
-                <span>123</span>
-              </td>
-              <td
-                colspan="2"
-                class="text-center align-middle p-4 text-gray-600"
-              >
-                برترین تقاضا در بورس
-                <br />
-
-                <span>123</span>
-              </td>
-              <td
-                colspan="2"
-                class="text-center align-middle p-4 text-gray-600"
-                id="farabourse-index"
-              >
-                برترین عرضه در بورس
-                <br />
-                <span>123</span>
+                <span id="saf-forosh">-</span>
               </td>
             </tr>
             <tr>
@@ -391,7 +391,7 @@
               >
                 ارزش صف های خرید (میلیارد تومان)
                 <br />
-                <span>123</span>
+                <span id="arzesh-saf-kharid">-</span>
               </td>
               <td
                 colspan="2"
@@ -400,7 +400,7 @@
               >
                 ارزش صف های فروش (میلیارد تومان)
                 <br />
-                <span>123</span>
+                <span id="arzesh-saf-forosh">-</span>
               </td>
               <td
                 colspan="2"
@@ -408,7 +408,7 @@
               >
                 بیشترین ورود پول حقیقی
                 <br />
-                <span>123</span>
+                <span>-</span>
               </td>
               <td
                 colspan="2"
@@ -417,7 +417,7 @@
               >
                 بیشترین خروج پول حقیقی
                 <br />
-                <span>123</span>
+                <span>-</span>
               </td>
             </tr>
 
@@ -429,7 +429,7 @@
               >
                 سنگین ترین صف های خرید
                 <br />
-                <span>123</span>
+                <span>-</span>
               </td>
               <td
                 colspan="4"
@@ -438,7 +438,7 @@
               >
                 سنگین ترین صف های فروش
                 <br />
-                <span>123</span>
+                <span>-</span>
               </td>
             </tr>
           </tbody>
@@ -462,6 +462,8 @@
         bourseEffect: "https://cdn.tsetmc.com/api/Index/GetInstEffect/0/1/10",
         farabourseEffect:
           "https://cdn.tsetmc.com/api/Index/GetInstEffect/0/2/10",
+        borsevafarabors:
+          "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2",
         borselist:
           "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=1&industrialGroup=&paperTypes%5B0%5D=1&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
         faraborselist:
@@ -551,7 +553,11 @@
 
           const indexes = await fetchApi(apiUrls.indexes);
           const amarIndexes = extractSelectedIndexes(indexes);
-          console.log(amarIndexes);
+          // console.log(amarIndexes);
+
+          const borsevafarabors = await fetchApi(apiUrls.borsevafarabors);
+          const marketCount = getMarketCount(borsevafarabors);
+          console.log(marketCount);
 
           // بازگشت داده‌ها در قالب یک ساختار یکپارچه
           return {
@@ -590,6 +596,7 @@
             marketStatus: bourseData.marketOverview.marketStateTitle,
             sanat: sanatSTR,
             indexes: amarIndexes,
+            marketCount: marketCount,
           };
         } catch (error) {
           console.error("خطا در دریافت داده:", error);
@@ -702,6 +709,19 @@
           .classList.add(
             data.indexes[3].indexChange < 0 ? "negative" : "positive"
           );
+
+        document.getElementById("mosbat").textContent = data.marketCount.mosbat;
+        document.getElementById("manfi").textContent = data.marketCount.manfi;
+        document.getElementById("saf-kharid").textContent =
+          data.marketCount.safmosbat;
+        document.getElementById("saf-forosh").textContent =
+          data.marketCount.safmanfi;
+        document.getElementById("arzesh-saf-kharid").textContent = Math.round(
+          data.marketCount.arzeshsafmosbat / 10000000000
+        );
+        document.getElementById("arzesh-saf-forosh").textContent = Math.round(
+          data.marketCount.arzeshsafmanfi / 10000000000
+        );
       }
 
       async function init() {

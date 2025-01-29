@@ -1,4 +1,3 @@
-// تابع تبدیل تاریخ میلادی به تاریخ شمسی
 function convertToJalaliDate(gregorianDate) {
   gregorianDate = String(gregorianDate);
   const gYear = parseInt(gregorianDate.slice(0, 4), 10);
@@ -150,6 +149,43 @@ function getMarketCount(data) {
   };
 }
 
+function getMarketMostSaf(data) {
+  // فیلتر کردن آیتم‌هایی که lva آن‌ها شامل عدد نباشد
+  const filteredItems = data.marketwatch.filter((item) => !/\d/.test(item.lva));
+
+  // محاسبه مقادیر و ذخیره آن‌ها در آرایه
+  const itemsWithValues = filteredItems.map((i) => {
+    const qmdPmd = i.pdv == i.pmx ? i.blDs[0].qmd * i.blDs[0].pmd : 0; // مقدار qmd * pmd (صف خرید)
+    const qmoPmo = i.pdv == i.pmn ? i.blDs[0].qmo * i.blDs[0].pmo : 0; // مقدار qmo * pmo (صف فروش)
+
+    return {
+      lva: i.lva, // شناسه lva
+      qmdPmd, // مقدار qmd * pmd
+      qmoPmo, // مقدار qmo * pmo
+    };
+  });
+
+  // پیدا کردن ۵ مورد با بیشترین صف خرید (qmd * pmd)
+  const top5Kharid = itemsWithValues
+    .sort((a, b) => b.qmdPmd - a.qmdPmd) // مرتب‌سازی نزولی
+    .slice(0, 5) // گرفتن ۵ مورد اول
+    .map((item) => item.lva) // استخراج lva
+    .join(" - "); // تبدیل به رشته با جداکننده‌ی " - "
+
+  // پیدا کردن ۵ مورد با بیشترین صف فروش (qmo * pmo)
+  const top5Forosh = itemsWithValues
+    .sort((a, b) => b.qmoPmo - a.qmoPmo) // مرتب‌سازی نزولی
+    .slice(0, 5) // گرفتن ۵ مورد اول
+    .map((item) => item.lva) // استخراج lva
+    .join(" - "); // تبدیل به رشته با جداکننده‌ی " - "
+
+  // خروجی نهایی
+  return {
+    top5Kharid, // ۵ مورد با بیشترین صف خرید
+    top5Forosh, // ۵ مورد با بیشترین صف فروش
+  };
+}
+
 const config = {
   currencyFormatter: new Intl.NumberFormat("fa-IR"),
   timeFormatter: new Intl.DateTimeFormat("fa-IR", {
@@ -178,6 +214,9 @@ const apiUrls = {
     "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&paperTypes%5B0%5D=6&showTraded=true&withBestLimits=true&hEven=0&RefID=0",
   sanat: "https://cdn.tsetmc.com/api/MarketData/GetSectorTop/5",
   indexes: "https://cdn.tsetmc.com/api/Index/GetIndexB1LastAll/All/1",
+  allbejozsandogh:
+    "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[8]=9",
+  all: "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[7]=8&paperTypes[8]=9",
 };
 
 const requestHeaders = {
@@ -268,6 +307,8 @@ async function fetchDataSequentially() {
     const borsevafarabors = await fetchApi(apiUrls.borsevafarabors);
     const marketCount = getMarketCount(borsevafarabors);
     // console.log(marketCount);
+    const allDara = await fetchApi(apiUrls.allbejozsandogh);
+    const safha = getMarketMostSaf(allDara);
 
     // بازگشت داده‌ها در قالب یک ساختار یکپارچه
     return {
@@ -311,6 +352,7 @@ async function fetchDataSequentially() {
       indexes: amarIndexes,
       marketCount: marketCount,
       mostValue: mostvalue,
+      safha: safha,
     };
   } catch (error) {
     console.error("خطا در دریافت داده:", error);
@@ -431,6 +473,11 @@ function updateUI(data) {
   document.getElementById("arzesh-saf-forosh").textContent = Math.round(
     data.marketCount.arzeshsafmanfi / config.BILLIONTOMAN
   );
+
+  document.getElementById("most-saf-kharid").textContent =
+    data.safha.top5Kharid;
+  document.getElementById("most-saf-forosh").textContent =
+    data.safha.top5Forosh;
 }
 
 async function init() {

@@ -217,6 +217,8 @@ const apiUrls = {
   allbejozsandogh:
     "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[8]=9",
   all: "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[7]=8&paperTypes[8]=9",
+  camodity:
+    "https://api.tgju.org/v1/widget/tmp?keys=137187,137186,137183,137119,137206,137121,137203,137119,137134,137135,137136,137138,137137,137179,137181,137182,137183",
 };
 
 const requestHeaders = {
@@ -225,13 +227,6 @@ const requestHeaders = {
   Connection: "keep-alive",
   Host: "cdn.tsetmc.com",
   Origin: window.location.origin, // Replace with your app's actual origin
-  "Sec-CH-UA":
-    '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-  "Sec-CH-UA-Mobile": "?0",
-  "Sec-CH-UA-Platform": '"Linux"',
-  "Sec-Fetch-Dest": "empty",
-  "Sec-Fetch-Mode": "cors",
-  "Sec-Fetch-Site": "cross-site",
   "User-Agent":
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 };
@@ -257,6 +252,7 @@ async function fetchDataSequentially() {
   try {
     // ارسال درخواست‌ها به ترتیب و دریافت داده‌ها
     const bourseData = await fetchApi(apiUrls.bourse);
+    console.log(bourseData);
     // console.log(bourseData);
     if (!bourseData) throw new Error("دریافت داده‌های بورس شکست خورد");
 
@@ -310,6 +306,9 @@ async function fetchDataSequentially() {
     const allDara = await fetchApi(apiUrls.allbejozsandogh);
     const safha = getMarketMostSaf(allDara);
 
+    const camodity = await fetchApi(apiUrls.camodity);
+    console.log(camodity.response.indicators);
+
     // بازگشت داده‌ها در قالب یک ساختار یکپارچه
     return {
       bourse: {
@@ -353,6 +352,7 @@ async function fetchDataSequentially() {
       marketCount: marketCount,
       mostValue: mostvalue,
       safha: safha,
+      camodities: camodity.response.indicators,
     };
   } catch (error) {
     console.error("خطا در دریافت داده:", error);
@@ -371,8 +371,57 @@ function formatNumber(number) {
   return config.currencyFormatter.format(number || 0);
 }
 
+function formatChange(value) {
+  // اگر تقسیم بر صفر بود یا مقدار نامعتبر بود، به جای درصد تغییر، علامت "-" نمایش می‌دهیم
+  if (!isFinite(value)) return "—";
+  return (value > 0 ? "+" : "") + value.toFixed(2) + "%";
+}
+
+// تابع به‌روزرسانی یک کالا
+function updateCommodity(commodity, priceElemId, changeElemId) {
+  const priceElem = document.getElementById(priceElemId);
+  const changeElem = document.getElementById(changeElemId);
+  if (priceElem && changeElem) {
+    priceElem.textContent = formatNumber(commodity.p);
+
+    let change = 0;
+    // در صورت صفر نبودن مقدار اولیه (o) تغییر را محاسبه می‌کنیم
+    if (parseFloat(commodity.o) !== 0) {
+      change = (parseFloat(commodity.p) / parseFloat(commodity.o) - 1) * 100;
+    }
+    changeElem.textContent = formatChange(change);
+    // کلاس مربوط به مثبت یا منفی بودن تغییر را اضافه می‌کنیم
+    changeElem.classList.add(change < 0 ? "negative" : "positive");
+  }
+}
+
+// شیء نگاشت نام کالا به آی‌دی‌های متناظر
+const commodityMapping = {
+  ons: { price: "ons-price", change: "ons-change" },
+  geram18: { price: "geram18-price", change: "geram18-change" },
+  oil: { price: "oil-price", change: "oil-change" },
+  oil_brent: { price: "oil_brent-price", change: "oil_brent-change" },
+  oil_opec: { price: "oil_opec-price", change: "oil_opec-change" },
+  sekeb: { price: "sekeb-price", change: "sekeb-change" },
+  sekee: { price: "sekee-price", change: "sekee-change" },
+  general_10: { price: "gas-natural-price", change: "gas-natural-change" },
+  general_11: { price: "gasoil-price", change: "gasoil-change" },
+  price_dollar_rl: { price: "dollar-price", change: "dollar-change" },
+  price_aed: { price: "aed-price", change: "aed-change" },
+  general_7: { price: "copper-price", change: "copper-change" },
+  general_3: { price: "aluminum-price", change: "aluminum-change" },
+  general_6: { price: "zinc-price", change: "zinc-change" },
+};
+
 function updateUI(data) {
   if (!data) return;
+
+  data.camodities.forEach((commodity) => {
+    const mapItem = commodityMapping[commodity.name];
+    if (mapItem) {
+      updateCommodity(commodity, mapItem.price, mapItem.change);
+    }
+  });
 
   // بخش هدر
   document.getElementById("current-date").textContent = data.date;

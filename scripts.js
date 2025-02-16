@@ -219,6 +219,9 @@ const apiUrls = {
   all: "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[7]=8&paperTypes[8]=9",
   camodity:
     "https://api.tgju.org/v1/widget/tmp?keys=137187,137186,137183,137119,137206,137121,137203,137119,137134,137135,137136,137138,137137,137179,137181,137182,137183",
+  currency:
+    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=usd&include_24hr_change=true",
+  tether: "https://api.tetherland.com/currencies",
 };
 
 const requestHeaders = {
@@ -294,7 +297,6 @@ async function fetchDataSequentially() {
       apiUrls.borsevafaraborsevasandogh
     );
     const mostvalue = getMarketTopValue(borsevafaraborsevasandogh);
-    // console.log(mostvalue);
 
     const indexes = await fetchApi(apiUrls.indexes);
     const amarIndexes = extractSelectedIndexes(indexes);
@@ -307,7 +309,10 @@ async function fetchDataSequentially() {
     const safha = getMarketMostSaf(allDara);
 
     const camodity = await fetchApi(apiUrls.camodity);
-    console.log(camodity.response.indicators);
+    // console.log(camodity.response.indicators);
+    const currency = await fetchApi(apiUrls.currency);
+
+    const tether = await fetchApi(apiUrls.tether);
 
     // بازگشت داده‌ها در قالب یک ساختار یکپارچه
     return {
@@ -353,6 +358,8 @@ async function fetchDataSequentially() {
       mostValue: mostvalue,
       safha: safha,
       camodities: camodity.response.indicators,
+      currency: currency,
+      tether: tether.data.currencies.USDT,
     };
   } catch (error) {
     console.error("خطا در دریافت داده:", error);
@@ -411,17 +418,11 @@ const commodityMapping = {
   general_7: { price: "copper-price", change: "copper-change" },
   general_3: { price: "aluminum-price", change: "aluminum-change" },
   general_6: { price: "zinc-price", change: "zinc-change" },
+  general_5: { price: "Lead-price", change: "Lead-change" },
 };
 
 function updateUI(data) {
   if (!data) return;
-
-  data.camodities.forEach((commodity) => {
-    const mapItem = commodityMapping[commodity.name];
-    if (mapItem) {
-      updateCommodity(commodity, mapItem.price, mapItem.change);
-    }
-  });
 
   // بخش هدر
   document.getElementById("current-date").textContent = data.date;
@@ -527,6 +528,60 @@ function updateUI(data) {
     data.safha.top5Kharid;
   document.getElementById("most-saf-forosh").textContent =
     data.safha.top5Forosh;
+
+  data.camodities.forEach((commodity) => {
+    const mapItem = commodityMapping[commodity.name];
+    if (mapItem) {
+      updateCommodity(commodity, mapItem.price, mapItem.change);
+    }
+  });
+
+  document.getElementById("bitcoin-price").textContent = formatNumber(
+    data.currency["bitcoin"]["usd"]
+  );
+  document.getElementById("bitcoin-change").textContent = formatChange(
+    data.currency["bitcoin"]["usd_24h_change"]
+  );
+  document
+    .getElementById("bitcoin-change")
+    .classList.add(
+      data.currency["bitcoin"]["usd_24h_change"] < 0 ? "negative" : "positive"
+    );
+
+  document.getElementById("ethereum-price").textContent = formatNumber(
+    data.currency["ethereum"]["usd"]
+  );
+  document.getElementById("ethereum-change").textContent = formatChange(
+    data.currency["ethereum"]["usd_24h_change"]
+  );
+  document
+    .getElementById("ethereum-change")
+    .classList.add(
+      data.currency["ethereum"]["usd_24h_change"] < 0 ? "negative" : "positive"
+    );
+
+  document.getElementById("ripple-price").textContent = formatNumber(
+    data.currency["ripple"]["usd"]
+  );
+  document.getElementById("ripple-change").textContent = formatChange(
+    data.currency["ripple"]["usd_24h_change"]
+  );
+  document
+    .getElementById("ripple-change")
+    .classList.add(
+      data.currency["ripple"]["usd_24h_change"] < 0 ? "negative" : "positive"
+    );
+
+  document.getElementById("tether-price").textContent = formatNumber(
+    data.tether.price
+  );
+
+  document.getElementById("tether-change").textContent = formatChange(
+    Number(data.tether.diff24d)
+  );
+  document
+    .getElementById("tether-change")
+    .classList.add(Number(data.tether.diff24d) < 0 ? "negative" : "positive");
 }
 
 async function init() {

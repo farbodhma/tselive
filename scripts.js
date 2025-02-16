@@ -86,6 +86,35 @@ function getMarketTopValue(data) {
   return resultString;
 }
 
+function getAkhtiyarValue(data) {
+  const sortedByQtc = data
+    .sort((a, b) => b.qTotCap_C - a.qTotCap_C)
+    .sort((a, b) => b.qTotCap_P - a.qTotCap_P);
+  const top5UniqueLva = Array.from(
+    new Set(sortedByQtc.map((item) => item.lval30_UA))
+  ).slice(0, 5);
+  const resultString = top5UniqueLva.join(" - ");
+  return resultString;
+}
+
+function getAkhtiyarNameKharid(data) {
+  const sortedByQtc = data.sort((a, b) => b.qTotCap_C - a.qTotCap_C);
+  const top5UniqueLva = Array.from(
+    new Set(sortedByQtc.map((item) => item.lVal30_C))
+  ).slice(0, 5);
+  const resultString = top5UniqueLva;
+  return resultString;
+}
+
+function getAkhtiyarNameForosh(data) {
+  const sortedByQtc = data.sort((a, b) => b.qTotCap_P - a.qTotCap_P);
+  const top5UniqueLva = Array.from(
+    new Set(sortedByQtc.map((item) => item.lVal30_P))
+  ).slice(0, 5);
+  const resultString = top5UniqueLva;
+  return resultString;
+}
+
 function extractSelectedIndexes(data) {
   const targetIndexes = [
     "شاخص 30 شركت بزرگ",
@@ -217,6 +246,11 @@ const apiUrls = {
   allbejozsandogh:
     "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[8]=9",
   all: "https://cdn.tsetmc.com/api/ClosingPrice/GetMarketWatch?market=0&industrialGroup=&showTraded=true&withBestLimits=true&hEven=0&RefID=0&paperTypes[0]=1&paperTypes[1]=2&paperTypes[2]=3&paperTypes[3]=4&paperTypes[4]=5&paperTypes[5]=6&paperTypes[6]=7&paperTypes[7]=8&paperTypes[8]=9",
+  akhtiyarBorse:
+    "https://cdn.tsetmc.com/api/Instrument/GetInstrumentOptionMarketWatch/1",
+  akhtiyarFaraBorse:
+    "https://cdn.tsetmc.com/api/Instrument/GetInstrumentOptionMarketWatch/2",
+
   camodity:
     "https://api.tgju.org/v1/widget/tmp?keys=137187,137186,137183,137119,137206,137121,137203,137119,137134,137135,137136,137138,137137,137179,137181,137182,137183",
   currency:
@@ -308,6 +342,25 @@ async function fetchDataSequentially() {
     const allDara = await fetchApi(apiUrls.allbejozsandogh);
     const safha = getMarketMostSaf(allDara);
 
+    const akhborse = await fetchApi(apiUrls.akhtiyarBorse);
+    const akhfaraborse = await fetchApi(apiUrls.akhtiyarFaraBorse);
+    const akhtiyar = akhborse.instrumentOptMarketWatch.concat(
+      akhfaraborse.instrumentOptMarketWatch
+    );
+
+    const akhtiyarTotalValues = akhtiyar.reduce(
+      (totals, item) => {
+        totals.qTotTran5J += item.qTotTran5J_P + item.qTotTran5J_C;
+        totals.qTotCap += item.qTotCap_P + item.qTotCap_C;
+        return totals;
+      },
+      { qTotTran5J: 0, qTotCap: 0 }
+    );
+
+    const top5FAkhtiyarValue = getAkhtiyarValue(akhtiyar);
+    const Top5NameKhari = getAkhtiyarNameKharid(akhtiyar);
+    const Top5NameForosh = getAkhtiyarNameForosh(akhtiyar);
+
     const camodity = await fetchApi(apiUrls.camodity);
     // console.log(camodity.response.indicators);
     const currency = await fetchApi(apiUrls.currency);
@@ -360,6 +413,10 @@ async function fetchDataSequentially() {
       camodities: camodity.response.indicators,
       currency: currency,
       tether: tether.data.currencies.USDT,
+      top5FAkhtiyarValue: top5FAkhtiyarValue,
+      akhtiyarTotalValues: akhtiyarTotalValues,
+      Top5NameKhari: Top5NameKhari,
+      Top5NameForosh: Top5NameForosh,
     };
   } catch (error) {
     console.error("خطا در دریافت داده:", error);
@@ -402,6 +459,8 @@ function updateCommodity(commodity, priceElemId, changeElemId) {
   }
 }
 
+// تابع به‌روزرسانی یک کالا
+
 // شیء نگاشت نام کالا به آی‌دی‌های متناظر
 const commodityMapping = {
   ons: { price: "ons-price", change: "ons-change" },
@@ -423,6 +482,20 @@ const commodityMapping = {
 
 function updateUI(data) {
   if (!data) return;
+
+  console.log(data.Top5NameKhari);
+  console.log(data.Top5NameForosh);
+
+  const tr_akhtiyar = `
+      ${data.Top5NameKhari.map(
+        (item, index) => `
+        <tr>
+          <td colspan="3" class="p-3 text-gray-600 text-sm text-center">${item}</td>
+          <td colspan="3" class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index]}</td>
+        </tr>
+      `
+      ).join("")}
+`;
 
   // بخش هدر
   document.getElementById("current-date").textContent = data.date;
@@ -528,6 +601,18 @@ function updateUI(data) {
     data.safha.top5Kharid;
   document.getElementById("most-saf-forosh").textContent =
     data.safha.top5Forosh;
+
+  document.getElementById("arzesh-moamelat-akhtiyar").textContent =
+    formatNumber(data.akhtiyarTotalValues.qTotCap / config.BILLION);
+  document.getElementById("hajm-moamelat-akhtiyar").textContent = formatNumber(
+    data.akhtiyarTotalValues.qTotTran5J
+  );
+
+  document.getElementById("top-akhtiyar").textContent = data.top5FAkhtiyarValue;
+  document.getElementById("top-akhtiyar-hafte").textContent =
+    data.top5FAkhtiyarValue;
+
+  document.getElementById("akhtiyar-table").innerHTML += tr_akhtiyar;
 
   data.camodities.forEach((commodity) => {
     const mapItem = commodityMapping[commodity.name];

@@ -100,18 +100,26 @@ function getAkhtiyarValue(data) {
 function getAkhtiyarNameKharid(data) {
   const sortedByQtc = data.sort((a, b) => b.qTotCap_C - a.qTotCap_C);
   const top5UniqueLva = Array.from(
-    new Set(sortedByQtc.map((item) => item.lVal30_C))
+    new Set(
+      sortedByQtc.map(
+        (item) => `${item.lVal18AFC_C}&${item.lVal30_C}&${item.qTotCap_C}`
+      )
+    )
   ).slice(0, 5);
-  const resultString = top5UniqueLva;
+  const resultString = top5UniqueLva.map((item) => item.split("&"));
   return resultString;
 }
 
 function getAkhtiyarNameForosh(data) {
   const sortedByQtc = data.sort((a, b) => b.qTotCap_P - a.qTotCap_P);
   const top5UniqueLva = Array.from(
-    new Set(sortedByQtc.map((item) => item.lVal30_P))
+    new Set(
+      sortedByQtc.map(
+        (item) => `${item.lVal18AFC_P}&${item.lVal30_P}&${item.qTotCap_P}`
+      )
+    )
   ).slice(0, 5);
-  const resultString = top5UniqueLva;
+  const resultString = top5UniqueLva.map((item) => item.split("&"));
   return resultString;
 }
 
@@ -487,14 +495,19 @@ function updateUI(data) {
   console.log(data.Top5NameForosh);
 
   const tr_akhtiyar = `
-      ${data.Top5NameKhari.map(
-        (item, index) => `
-        <tr>
-          <td colspan="3" class="p-3 text-gray-600 text-sm text-center">${item}</td>
-          <td colspan="3" class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index]}</td>
-        </tr>
-      `
-      ).join("")}
+  ${data.Top5NameKhari.map(
+    (item, index) => `
+    <tr>
+      <td  class="p-3 text-gray-600 text-sm text-center">${item[0]}</td>
+      <td  class="p-3 text-gray-600 text-sm text-center">${item[1]}</td>
+      <td  class="p-3 text-gray-600 text-sm text-center">${formatNumber(item[2] / config.BILLION)}</td>
+
+      <td  class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index][0]}</td>
+      <td  class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index][1]}</td>
+      <td  class="p-3 text-gray-600 text-sm text-center">${formatNumber(data.Top5NameForosh[index][2] / config.BILLION)}</td>
+    </tr>
+  `
+  ).join("")}
 `;
 
   // بخش هدر

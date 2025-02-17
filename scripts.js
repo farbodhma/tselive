@@ -260,7 +260,7 @@ const apiUrls = {
     "https://cdn.tsetmc.com/api/Instrument/GetInstrumentOptionMarketWatch/2",
 
   camodity:
-    "https://api.tgju.org/v1/widget/tmp?keys=137187,137186,137183,137119,137206,137121,137203,137119,137134,137135,137136,137138,137137,137179,137181,137182,137183",
+    "https://api.tgju.org/v1/widget/tmp?keys=137187,137186,137183,137119,137206,137121,137203,137119,137134,137135,137136,137138,137137,137179,137181,137182,137183,131439",
   currency:
     "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple&vs_currencies=usd&include_24hr_change=true",
   tether: "https://api.tetherland.com/currencies",
@@ -458,8 +458,9 @@ function updateCommodity(commodity, priceElemId, changeElemId) {
 
     let change = 0;
     // در صورت صفر نبودن مقدار اولیه (o) تغییر را محاسبه می‌کنیم
-    if (parseFloat(commodity.o) !== 0) {
-      change = (parseFloat(commodity.p) / parseFloat(commodity.o) - 1) * 100;
+    if (formatNumber(commodity.p) !== 0) {
+      // change = (parseFloat(commodity.p) / parseFloat(commodity.o) - 1) * 100;
+      change = parseFloat(commodity.dp);
     }
     changeElem.textContent = formatChange(change);
     // کلاس مربوط به مثبت یا منفی بودن تغییر را اضافه می‌کنیم
@@ -486,6 +487,7 @@ const commodityMapping = {
   general_3: { price: "aluminum-price", change: "aluminum-change" },
   general_6: { price: "zinc-price", change: "zinc-change" },
   general_5: { price: "Lead-price", change: "Lead-change" },
+  "base-us-steel-coil": { price: "steel-price", change: "steel-change" },
 };
 
 function updateUI(data) {

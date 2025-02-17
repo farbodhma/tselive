@@ -22,6 +22,7 @@
 
       * {
         font-family: iransans, Arial, sans-serif;
+        font-weight: 800;
       }
     </style>
   </head>
@@ -38,7 +39,7 @@
             class="bg-gray-200 flex justify-between items-center p-3 rounded-lg shadow-sm"
           >
             <span class="text-gray-500">وضعیت بازار </span>
-            <span class="font-medium" id="market-status"></span>
+            <span class="" id="market-status"></span>
           </div>
           <div class="col-span-2"></div>
           <div
@@ -461,19 +462,19 @@
           <tbody class="divide-y divide-gray-200" id="akhtiyar-table">
             <!-- ردیف 1 -->
             <tr>
-              <td class="p-3 text-gray-600 text-sm">ارزش معاملات</td>
+              <td class="p-3 text-gray-600">ارزش معاملات</td>
               <td
-                class="p-3 text-gray-700 font-medium"
+                colspan="2"
+                class="p-3 text-gray-700 text-center"
                 id="arzesh-moamelat-akhtiyar"
               ></td>
-              <td class="p-3"></td>
 
-              <td class="p-3 text-gray-600 text-sm">حجم معاملات</td>
+              <td class="p-3 text-gray-600">حجم معاملات</td>
               <td
-                class="p-3 text-gray-700 font-medium"
+                colspan="2"
+                class="p-3 text-gray-700 text-center"
                 id="hajm-moamelat-akhtiyar"
               ></td>
-              <td class="p-3"></td>
             </tr>
 
             <!-- ردیف 2 -->
@@ -522,13 +523,6 @@
               </th>
             </tr>
 
-            <!-- ردیف 5-9: دادههای خرید/فروش -->
-            <!-- <tr>
-              <td class="p-3 text-gray-600 text-sm">ضهرم۱۱۱۰ (اختیارخ اهرم)</td>
-              <td class="p-3 text-gray-600 text-sm">طهرم۱۱۱۰ (اختیارف اهرم)</td>
-           
-            </tr> -->
-
             <!-- بقیه ردیفها به همین شکل افزوده شوند -->
           </tbody>
         </table>
@@ -556,157 +550,142 @@
             <!-- ردیف 1 -->
             <tr>
               <!-- سمت چپ: انس طلا -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 انس طلا <span class="text-xs text-gray-400">(دلار)</span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="ons-price"></td>
+              <td class="p-3 text-gray-700" id="ons-price"></td>
               <td class="p-3" id="ons-change"></td>
 
               <!-- سمت راست: نفت سبک -->
-              <td class="p-3 text-gray-600 text-sm">نفت سبک</td>
-              <td class="p-3 text-gray-700 font-medium" id="oil-price"></td>
+              <td class="p-3 text-gray-600">نفت سبک</td>
+              <td class="p-3 text-gray-700" id="oil-price"></td>
               <td class="p-3" id="oil-change"></td>
             </tr>
 
             <!-- ردیف 2 -->
             <tr>
               <!-- سمت چپ: طلای 18 عیار -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 طلا 18 عیار <span class="text-xs text-gray-400">(ریال)</span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="geram18-price"></td>
+              <td class="p-3 text-gray-700" id="geram18-price"></td>
               <td class="p-3" id="geram18-change"></td>
 
               <!-- سمت راست: نفت برنت -->
-              <td class="p-3 text-gray-600 text-sm">نفت برنت</td>
-              <td
-                class="p-3 text-gray-700 font-medium"
-                id="oil_brent-price"
-              ></td>
+              <td class="p-3 text-gray-600">نفت برنت</td>
+              <td class="p-3 text-gray-700" id="oil_brent-price"></td>
               <td class="p-3" id="oil_brent-change"></td>
             </tr>
 
             <!-- ردیف 3 -->
             <tr>
               <!-- سمت چپ: سکه بهار آزادی -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 سکه بهار آزادی <span class="text-xs text-gray-400">(ریال)</span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="sekeb-price"></td>
+              <td class="p-3 text-gray-700" id="sekeb-price"></td>
               <td class="p-3" id="sekeb-change"></td>
 
               <!-- سمت راست: نفت اپک -->
-              <td class="p-3 text-gray-600 text-sm">نفت اپک</td>
-              <td
-                class="p-3 text-gray-700 font-medium"
-                id="oil_opec-price"
-              ></td>
+              <td class="p-3 text-gray-600">نفت اپک</td>
+              <td class="p-3 text-gray-700" id="oil_opec-price"></td>
               <td class="p-3" id="oil_opec-change"></td>
             </tr>
 
             <!-- ردیف 4 -->
             <tr>
               <!-- سمت چپ: سکه امامی -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 سکه امامی <span class="text-xs text-gray-400">(ریال)</span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="sekee-price"></td>
+              <td class="p-3 text-gray-700" id="sekee-price"></td>
               <td class="p-3" id="sekee-change"></td>
 
               <!-- سمت راست: گاز طبیعی -->
-              <td class="p-3 text-gray-600 text-sm">گاز طبیعی</td>
-              <td
-                class="p-3 text-gray-700 font-medium"
-                id="gas-natural-price"
-              ></td>
+              <td class="p-3 text-gray-600">گاز طبیعی</td>
+              <td class="p-3 text-gray-700" id="gas-natural-price"></td>
               <td class="p-3" id="gas-natural-change"></td>
             </tr>
 
             <!-- ردیف 5 -->
             <tr>
               <!-- سمت چپ: دلار آمریکا -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 دلار آمریکا <span class="text-xs text-gray-400">(ریال)</span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="dollar-price"></td>
+              <td class="p-3 text-gray-700" id="dollar-price"></td>
               <td class="p-3" id="dollar-change"></td>
 
               <!-- سمت راست: گازوئیل -->
-              <td class="p-3 text-gray-600 text-sm">گازوئیل</td>
-              <td class="p-3 text-gray-700 font-medium" id="gasoil-price"></td>
+              <td class="p-3 text-gray-600">گازوئیل</td>
+              <td class="p-3 text-gray-700" id="gasoil-price"></td>
               <td class="p-3" id="gasoil-change"></td>
             </tr>
 
             <!-- ردیف 6 -->
             <tr>
               <!-- سمت چپ: درهم امارات -->
-              <td class="p-3 text-gray-600 text-sm">درهم امارات</td>
-              <td class="p-3 text-gray-700 font-medium" id="aed-price"></td>
+              <td class="p-3 text-gray-600">درهم امارات</td>
+              <td class="p-3 text-gray-700" id="aed-price"></td>
               <td class="p-3" id="aed-change"></td>
 
               <!-- سمت راست: فولاد (در صورت موجود بودن داده) -->
-              <td class="p-3 text-gray-600 text-sm">فولاد</td>
-              <td class="p-3 text-gray-700 font-medium" id="steel-price"></td>
+              <td class="p-3 text-gray-600">فولاد</td>
+              <td class="p-3 text-gray-700" id="steel-price"></td>
               <td class="p-3" id="steel-change"></td>
             </tr>
 
             <!-- ردیف 7 -->
             <tr>
               <!-- سمت چپ: بیت کوین (در صورت موجود بودن داده) -->
-              <td class="p-3 text-gray-600 text-sm">بیت کوین</td>
-              <td class="p-3 text-gray-700 font-medium" id="bitcoin-price"></td>
+              <td class="p-3 text-gray-600">بیت کوین</td>
+              <td class="p-3 text-gray-700" id="bitcoin-price"></td>
               <td class="p-3" id="bitcoin-change"></td>
 
               <!-- سمت راست: مس -->
-              <td class="p-3 text-gray-600 text-sm">مس</td>
-              <td class="p-3 text-gray-700 font-medium" id="copper-price"></td>
+              <td class="p-3 text-gray-600">مس</td>
+              <td class="p-3 text-gray-700" id="copper-price"></td>
               <td class="p-3" id="copper-change"></td>
             </tr>
 
             <!-- ردیف 8 -->
             <tr>
               <!-- سمت چپ: اتریوم (در صورت موجود بودن داده) -->
-              <td class="p-3 text-gray-600 text-sm">اتریوم</td>
-              <td
-                class="p-3 text-gray-700 font-medium"
-                id="ethereum-price"
-              ></td>
+              <td class="p-3 text-gray-600">اتریوم</td>
+              <td class="p-3 text-gray-700" id="ethereum-price"></td>
               <td class="p-3" id="ethereum-change"></td>
 
               <!-- سمت راست: آلومینیوم -->
-              <td class="p-3 text-gray-600 text-sm">آلومینیوم</td>
-              <td
-                class="p-3 text-gray-700 font-medium"
-                id="aluminum-price"
-              ></td>
+              <td class="p-3 text-gray-600">آلومینیوم</td>
+              <td class="p-3 text-gray-700" id="aluminum-price"></td>
               <td class="p-3" id="aluminum-change"></td>
             </tr>
 
             <!-- ردیف 9 -->
             <tr>
               <!-- سمت چپ: تتر (در صورت موجود بودن داده) -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 ریپل <span class="text-xs text-gray-400"></span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="ripple-price"></td>
+              <td class="p-3 text-gray-700" id="ripple-price"></td>
               <td class="p-3" id="ripple-change"></td>
 
               <!-- سمت راست: روی -->
-              <td class="p-3 text-gray-600 text-sm">روی</td>
-              <td class="p-3 text-gray-700 font-medium" id="zinc-price"></td>
+              <td class="p-3 text-gray-600">روی</td>
+              <td class="p-3 text-gray-700" id="zinc-price"></td>
               <td class="p-3" id="zinc-change"></td>
             </tr>
             <tr>
               <!-- سمت چپ: تتر (در صورت موجود بودن داده) -->
-              <td class="p-3 text-gray-600 text-sm">
+              <td class="p-3 text-gray-600">
                 تتر <span class="text-xs text-gray-400">(تومان)</span>
               </td>
-              <td class="p-3 text-gray-700 font-medium" id="tether-price"></td>
+              <td class="p-3 text-gray-700" id="tether-price"></td>
               <td class="p-3" id="tether-change"></td>
 
               <!-- سمت راست: روی -->
-              <td class="p-3 text-gray-600 text-sm">سرب</td>
-              <td class="p-3 text-gray-700 font-medium" id="Lead-price"></td>
+              <td class="p-3 text-gray-600">سرب</td>
+              <td class="p-3 text-gray-700" id="Lead-price"></td>
               <td class="p-3" id="Lead-change"></td>
             </tr>
           </tbody>

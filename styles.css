@@ -1,0 +1,16 @@
+.negative {
+  color: #ef4444;
+}
+.positive {
+  color: #22c55e;
+}
+
+@font-face {
+  font-family: "iransans";
+  src: url("font/iransans.ttf") format("truetype");
+}
+
+* {
+  font-family: iransans, Arial, sans-serif;
+  font-weight: 800;
+}

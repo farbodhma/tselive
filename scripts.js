@@ -293,68 +293,85 @@ async function fetchApi(url) {
   }
 }
 
-async function fetchDataSequentially() {
+async function fetchDataParallel() {
   try {
-    // ارسال درخواست‌ها به ترتیب و دریافت داده‌ها
-    const bourseData = await fetchApi(apiUrls.bourse);
-    console.log(bourseData);
-    // console.log(bourseData);
-    if (!bourseData) throw new Error("دریافت داده‌های بورس شکست خورد");
+    // گروه اول: داده‌های اصلی بازار
+    const mainMarketData = await Promise.all([
+      fetchApi(apiUrls.bourse),
+      fetchApi(apiUrls.farabourse),
+      fetchApi(apiUrls.bourseEffect),
+      fetchApi(apiUrls.farabourseEffect),
+      fetchApi(apiUrls.indexes),
+    ]);
 
-    const farabourseData = await fetchApi(apiUrls.farabourse);
-    // console.log(farabourseData);
-    if (!farabourseData) throw new Error("دریافت داده‌های فرابورس شکست خورد");
+    const [
+      bourseData,
+      farabourseData,
+      bourseEffect,
+      farabourseEffect,
+      indexes,
+    ] = mainMarketData;
 
-    const bourseEffect = await fetchApi(apiUrls.bourseEffect);
+    if (!bourseData || !farabourseData) {
+      throw new Error("دریافت داده‌های اصلی بازار با شکست مواجه شد");
+    }
+
+    // گروه دوم: داده‌های لیست‌ها
+    const listData = await Promise.all([
+      fetchApi(apiUrls.borselist),
+      fetchApi(apiUrls.faraborselist),
+      fetchApi(apiUrls.borsevafaraborsevasandogh),
+      fetchApi(apiUrls.borsevafarabors),
+      fetchApi(apiUrls.allbejozsandogh),
+      fetchApi(apiUrls.sanat),
+    ]);
+
+    const [
+      borselist,
+      faraborselist,
+      borsevafaraborsevasandogh,
+      borsevafarabors,
+      allDara,
+      sanat,
+    ] = listData;
+
+    // گروه سوم: داده‌های اختیار معامله
+    const optionsData = await Promise.all([
+      fetchApi(apiUrls.akhtiyarBorse),
+      fetchApi(apiUrls.akhtiyarFaraBorse),
+    ]);
+
+    const [akhborse, akhfaraborse] = optionsData;
+    const akhtiyar = akhborse.instrumentOptMarketWatch.concat(
+      akhfaraborse.instrumentOptMarketWatch
+    );
+
+    // گروه چهارم: داده‌های بازارهای جهانی
+    const globalMarketsData = await Promise.all([
+      fetchApi(apiUrls.camodity),
+      fetchApi(apiUrls.currency),
+      fetchApi(apiUrls.tether),
+    ]);
+
+    const [camodity, currency, tether] = globalMarketsData;
+
+    // پردازش داده‌های دریافتی
     const bourseEffectSTR = bourseEffect.instEffect
       .map((item) => item.instrument.lVal18AFC)
       .join(" - ");
 
-    // console.log(bourseEffectSTR);
-    if (!bourseEffect) throw new Error("دریافت اثرات نماد بورس شکست خورد");
-
-    const farabourseEffect = await fetchApi(apiUrls.farabourseEffect);
     const farabourseEffectSTR = farabourseEffect.instEffect
       .map((item) => item.instrument.lVal18AFC)
       .join(" - ");
 
-    // console.log(farabourseEffectSTR);
-    if (!farabourseEffect)
-      throw new Error("دریافت اثرات نماد فرابورس شکست خورد");
-
-    const borselist = await fetchApi(apiUrls.borselist);
-    // console.log(borselist);
-    if (!borselist) throw new Error("دریافت داده‌های بورس شکست خورد");
-
-    const faraborselist = await fetchApi(apiUrls.faraborselist);
-    // console.log(faraborselist);
-    if (!borselist) throw new Error("دریافت داده‌های بورس شکست خورد");
-
-    const sanat = await fetchApi(apiUrls.sanat);
     const sanatSTR = sanat.sectorTop
       .map((item) => item.lVal30.split("-")[1])
       .join(" - ");
 
-    const borsevafaraborsevasandogh = await fetchApi(
-      apiUrls.borsevafaraborsevasandogh
-    );
     const mostvalue = getMarketTopValue(borsevafaraborsevasandogh);
-
-    const indexes = await fetchApi(apiUrls.indexes);
     const amarIndexes = extractSelectedIndexes(indexes);
-    // console.log(amarIndexes);
-
-    const borsevafarabors = await fetchApi(apiUrls.borsevafarabors);
     const marketCount = getMarketCount(borsevafarabors);
-    // console.log(marketCount);
-    const allDara = await fetchApi(apiUrls.allbejozsandogh);
     const safha = getMarketMostSaf(allDara);
-
-    const akhborse = await fetchApi(apiUrls.akhtiyarBorse);
-    const akhfaraborse = await fetchApi(apiUrls.akhtiyarFaraBorse);
-    const akhtiyar = akhborse.instrumentOptMarketWatch.concat(
-      akhfaraborse.instrumentOptMarketWatch
-    );
 
     const akhtiyarTotalValues = akhtiyar.reduce(
       (totals, item) => {
@@ -369,13 +386,7 @@ async function fetchDataSequentially() {
     const Top5NameKhari = getAkhtiyarNameKharid(akhtiyar);
     const Top5NameForosh = getAkhtiyarNameForosh(akhtiyar);
 
-    const camodity = await fetchApi(apiUrls.camodity);
-    // console.log(camodity.response.indicators);
-    const currency = await fetchApi(apiUrls.currency);
-
-    const tether = await fetchApi(apiUrls.tether);
-
-    // بازگشت داده‌ها در قالب یک ساختار یکپارچه
+    // بازگشت داده‌های پردازش شده
     return {
       bourse: {
         index: bourseData.marketOverview.indexLastValue,
@@ -439,12 +450,24 @@ function updateMarketStatus(status) {
   statusEl.className = `font-medium ${status === "باز" ? "positive" : "negative"}`;
 }
 
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const formatNumberMemoized = memoize(formatNumber);
+
 function formatNumber(number) {
   return config.currencyFormatter.format(number || 0);
 }
 
 function formatChange(value) {
-  // اگر تقسیم بر صفر بود یا مقدار نامعتبر بود، به جای درصد تغییر، علامت "-" نمایش می‌دهیم
   if (!isFinite(value)) return "—";
   return (value > 0 ? "+" : "") + value.toFixed(2) + "%";
 }
@@ -468,7 +491,13 @@ function updateCommodity(commodity, priceElemId, changeElemId) {
   }
 }
 
-// تابع به‌روزرسانی یک کالا
+// تابع کمکی برای اضافه کردن کلاس positive یا negative
+function addValueStateClass(elementId, value) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.add(value < 0 ? "negative" : "positive");
+  }
+}
 
 // شیء نگاشت نام کالا به آی‌دی‌های متناظر
 const commodityMapping = {
@@ -490,203 +519,159 @@ const commodityMapping = {
   "base-us-steel-coil": { price: "steel-price", change: "steel-change" },
 };
 
-function updateUI(data) {
+function updateUIWithRAF(data) {
   if (!data) return;
 
-  console.log(data.Top5NameKhari);
-  console.log(data.Top5NameForosh);
+  // برنامه‌ریزی بروزرسانی‌ها در فریم بعدی
+  requestAnimationFrame(() => {
+    // بروزرسانی هدر
+    requestAnimationFrame(() => {
+      document.getElementById("current-date").textContent = data.date;
+      document.getElementById("current-time").textContent = data.time;
+      updateMarketStatus(data.marketStatus);
+    });
 
-  const tr_akhtiyar = `
-  ${data.Top5NameKhari.map(
-    (item, index) => `
-    <tr>
-      <td  class="p-3 text-gray-600 text-sm text-center">${item[0]}</td>
-      <td  class="p-3 text-gray-600 text-sm text-center">${item[1]}</td>
-      <td  class="p-3 text-gray-600 text-sm text-center">${formatNumber(item[2] / config.BILLION)}</td>
+    // بروزرسانی بخش بورس
+    requestAnimationFrame(() => {
+      const bourseElements = {
+        "bourse-index": formatNumber(data.bourse.index),
+        "bourse-change": formatNumber(data.bourse.change),
+        "bourse-market-value": formatNumber(data.bourse.marketValue),
+        "bourse-trade-value": formatNumber(data.bourse.tradeValue),
+        "bourse-top-influence": data.bourse.topInfluence,
+        "bourse-top-gain": data.bourse.topGain,
+        "bourse-top-loss": data.bourse.topLoss,
+      };
 
-      <td  class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index][0]}</td>
-      <td  class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index][1]}</td>
-      <td  class="p-3 text-gray-600 text-sm text-center">${formatNumber(data.Top5NameForosh[index][2] / config.BILLION)}</td>
-    </tr>
-  `
-  ).join("")}
-`;
+      Object.entries(bourseElements).forEach(([id, value]) => {
+        document.getElementById(id).textContent = value;
+      });
+      addValueStateClass("bourse-change", data.bourse.change);
+    });
 
-  // بخش هدر
-  document.getElementById("current-date").textContent = data.date;
-  document.getElementById("current-time").textContent = data.time;
-  updateMarketStatus(data.marketStatus);
+    // بروزرسانی بخش فرابورس
+    requestAnimationFrame(() => {
+      const farabourseElements = {
+        "farabourse-index": formatNumber(data.farabourse.index),
+        "farabourse-change": formatNumber(data.farabourse.change),
+        "farabourse-market-first": formatNumber(
+          data.farabourse.marketValue.firstSecondMarket
+        ),
+        "farabourse-market-base": formatNumber(
+          data.farabourse.marketValue.baseMarket
+        ),
+        "farabourse-trade-value": formatNumber(data.farabourse.tradeValue),
+        "farabourse-top-influence": data.farabourse.topInfluence,
+        "farabourse-top-gain": data.farabourse.topGain,
+        "farabourse-top-loss": data.farabourse.topLoss,
+      };
 
-  // بخش بورس
-  document.getElementById("bourse-index").textContent = formatNumber(
-    data.bourse.index
-  );
-  document.getElementById("bourse-change").textContent = formatNumber(
-    data.bourse.change
-  );
-  document
-    .getElementById("bourse-change")
-    .classList.add(data.bourse.change < 0 ? "negative" : "positive");
-  document.getElementById("bourse-market-value").textContent = formatNumber(
-    data.bourse.marketValue
-  );
-  document.getElementById("bourse-trade-value").textContent = formatNumber(
-    data.bourse.tradeValue
-  );
-  document.getElementById("bourse-top-influence").textContent =
-    data.bourse.topInfluence;
-  document.getElementById("bourse-top-gain").textContent = data.bourse.topGain;
-  document.getElementById("bourse-top-loss").textContent = data.bourse.topLoss;
+      Object.entries(farabourseElements).forEach(([id, value]) => {
+        document.getElementById(id).textContent = value;
+      });
+      addValueStateClass("farabourse-change", data.farabourse.change);
+    });
 
-  // بخش فرابورس
-  document.getElementById("farabourse-index").textContent = formatNumber(
-    data.farabourse.index
-  );
-  document.getElementById("farabourse-change").textContent = formatNumber(
-    data.farabourse.change
-  );
-  document
-    .getElementById("farabourse-change")
-    .classList.add(data.farabourse.change < 0 ? "negative" : "positive");
-  document.getElementById("farabourse-market-first").textContent = formatNumber(
-    data.farabourse.marketValue.firstSecondMarket
-  );
-  document.getElementById("farabourse-market-base").textContent = formatNumber(
-    data.farabourse.marketValue.baseMarket
-  );
-  document.getElementById("farabourse-trade-value").textContent = formatNumber(
-    data.farabourse.tradeValue
-  );
-  document.getElementById("farabourse-top-influence").textContent =
-    data.farabourse.topInfluence;
-  document.getElementById("farabourse-top-gain").textContent =
-    data.farabourse.topGain;
-  document.getElementById("farabourse-top-loss").textContent =
-    data.farabourse.topLoss;
+    // بروزرسانی شاخص‌ها
+    requestAnimationFrame(() => {
+      for (let i = 0; i < 4; i++) {
+        document.getElementById(`${i}-indexes-value`).textContent =
+          data.indexes[i].index;
+        document.getElementById(`${i}-indexes-change`).textContent =
+          formatNumber(data.indexes[i].indexChange);
+        addValueStateClass(`${i}-indexes-change`, data.indexes[i].indexChange);
+      }
+    });
 
-  document.getElementById("top-sanat").textContent = data.sanat;
-  document.getElementById("most-value").textContent = data.mostValue;
+    // بروزرسانی آمار بازار
+    requestAnimationFrame(() => {
+      const marketElements = {
+        "top-sanat": data.sanat,
+        "most-value": data.mostValue,
+        mosbat: data.marketCount.mosbat,
+        manfi: data.marketCount.manfi,
+        "saf-kharid": data.marketCount.safmosbat,
+        "saf-forosh": data.marketCount.safmanfi,
+        "arzesh-saf-kharid": Math.round(
+          data.marketCount.arzeshsafmosbat / config.BILLIONTOMAN
+        ),
+        "arzesh-saf-forosh": Math.round(
+          data.marketCount.arzeshsafmanfi / config.BILLIONTOMAN
+        ),
+        "most-saf-kharid": data.safha.top5Kharid,
+        "most-saf-forosh": data.safha.top5Forosh,
+      };
 
-  document.getElementById("0-indexes-value").textContent =
-    data.indexes[0].index;
-  document.getElementById("0-indexes-change").textContent = formatNumber(
-    data.indexes[0].indexChange
-  );
-  document
-    .getElementById("0-indexes-change")
-    .classList.add(data.indexes[0].indexChange < 0 ? "negative" : "positive");
-  document.getElementById("1-indexes-value").textContent =
-    data.indexes[1].index;
-  document.getElementById("1-indexes-change").textContent = formatNumber(
-    data.indexes[1].indexChange
-  );
-  document
-    .getElementById("1-indexes-change")
-    .classList.add(data.indexes[1].indexChange < 0 ? "negative" : "positive");
-  document.getElementById("2-indexes-value").textContent =
-    data.indexes[2].index;
-  document.getElementById("2-indexes-change").textContent = formatNumber(
-    data.indexes[2].indexChange
-  );
-  document
-    .getElementById("2-indexes-change")
-    .classList.add(data.indexes[2].indexChange < 0 ? "negative" : "positive");
-  document.getElementById("3-indexes-value").textContent =
-    data.indexes[3].index;
-  document.getElementById("3-indexes-change").textContent = formatNumber(
-    data.indexes[3].indexChange
-  );
-  document
-    .getElementById("3-indexes-change")
-    .classList.add(data.indexes[3].indexChange < 0 ? "negative" : "positive");
+      Object.entries(marketElements).forEach(([id, value]) => {
+        document.getElementById(id).textContent = value;
+      });
+    });
 
-  document.getElementById("mosbat").textContent = data.marketCount.mosbat;
-  document.getElementById("manfi").textContent = data.marketCount.manfi;
-  document.getElementById("saf-kharid").textContent =
-    data.marketCount.safmosbat;
-  document.getElementById("saf-forosh").textContent = data.marketCount.safmanfi;
-  document.getElementById("arzesh-saf-kharid").textContent = Math.round(
-    data.marketCount.arzeshsafmosbat / config.BILLIONTOMAN
-  );
-  document.getElementById("arzesh-saf-forosh").textContent = Math.round(
-    data.marketCount.arzeshsafmanfi / config.BILLIONTOMAN
-  );
+    // بروزرسانی بخش اختیار معامله
+    requestAnimationFrame(() => {
+      document.getElementById("arzesh-moamelat-akhtiyar").textContent =
+        formatNumber(data.akhtiyarTotalValues.qTotCap / config.BILLION);
+      document.getElementById("hajm-moamelat-akhtiyar").textContent =
+        formatNumber(data.akhtiyarTotalValues.qTotTran5J);
+      document.getElementById("top-akhtiyar").textContent =
+        data.top5FAkhtiyarValue;
+      document.getElementById("top-akhtiyar-hafte").textContent =
+        data.top5FAkhtiyarValue;
+    });
 
-  document.getElementById("most-saf-kharid").textContent =
-    data.safha.top5Kharid;
-  document.getElementById("most-saf-forosh").textContent =
-    data.safha.top5Forosh;
+    // بروزرسانی کالاها
+    requestAnimationFrame(() => {
+      data.camodities.forEach((commodity) => {
+        const mapItem = commodityMapping[commodity.name];
+        if (mapItem) {
+          updateCommodity(commodity, mapItem.price, mapItem.change);
+        }
+      });
+    });
 
-  document.getElementById("arzesh-moamelat-akhtiyar").textContent =
-    formatNumber(data.akhtiyarTotalValues.qTotCap / config.BILLION);
-  document.getElementById("hajm-moamelat-akhtiyar").textContent = formatNumber(
-    data.akhtiyarTotalValues.qTotTran5J
-  );
+    // بروزرسانی ارزهای دیجیتال
+    requestAnimationFrame(() => {
+      const cryptos = [
+        { id: "bitcoin", name: "بیت‌کوین" },
+        { id: "ethereum", name: "اتریوم" },
+        { id: "ripple", name: "ریپل" },
+      ];
 
-  document.getElementById("top-akhtiyar").textContent = data.top5FAkhtiyarValue;
-  document.getElementById("top-akhtiyar-hafte").textContent =
-    data.top5FAkhtiyarValue;
+      cryptos.forEach((crypto) => {
+        const price = data.currency[crypto.id]?.usd;
+        const change = data.currency[crypto.id]?.usd_24h_change;
 
-  document.getElementById("akhtiyar-table").innerHTML += tr_akhtiyar;
+        if (price !== undefined && change !== undefined) {
+          document.getElementById(`${crypto.id}-price`).textContent =
+            formatNumber(price);
+          document.getElementById(`${crypto.id}-change`).textContent =
+            formatChange(change);
+          addValueStateClass(`${crypto.id}-change`, change);
+        }
+      });
 
-  data.camodities.forEach((commodity) => {
-    const mapItem = commodityMapping[commodity.name];
-    if (mapItem) {
-      updateCommodity(commodity, mapItem.price, mapItem.change);
-    }
+      // بروزرسانی تتر
+      if (data.tether?.price) {
+        document.getElementById("tether-price").textContent = formatNumber(
+          data.tether.price
+        );
+        document.getElementById("tether-change").textContent = formatChange(
+          Number(data.tether.diff24d)
+        );
+        addValueStateClass("tether-change", Number(data.tether.diff24d));
+      }
+    });
   });
+}
 
-  document.getElementById("bitcoin-price").textContent = formatNumber(
-    data.currency["bitcoin"]["usd"]
-  );
-  document.getElementById("bitcoin-change").textContent = formatChange(
-    data.currency["bitcoin"]["usd_24h_change"]
-  );
-  document
-    .getElementById("bitcoin-change")
-    .classList.add(
-      data.currency["bitcoin"]["usd_24h_change"] < 0 ? "negative" : "positive"
-    );
-
-  document.getElementById("ethereum-price").textContent = formatNumber(
-    data.currency["ethereum"]["usd"]
-  );
-  document.getElementById("ethereum-change").textContent = formatChange(
-    data.currency["ethereum"]["usd_24h_change"]
-  );
-  document
-    .getElementById("ethereum-change")
-    .classList.add(
-      data.currency["ethereum"]["usd_24h_change"] < 0 ? "negative" : "positive"
-    );
-
-  document.getElementById("ripple-price").textContent = formatNumber(
-    data.currency["ripple"]["usd"]
-  );
-  document.getElementById("ripple-change").textContent = formatChange(
-    data.currency["ripple"]["usd_24h_change"]
-  );
-  document
-    .getElementById("ripple-change")
-    .classList.add(
-      data.currency["ripple"]["usd_24h_change"] < 0 ? "negative" : "positive"
-    );
-
-  document.getElementById("tether-price").textContent = formatNumber(
-    data.tether.price
-  );
-
-  document.getElementById("tether-change").textContent = formatChange(
-    Number(data.tether.diff24d)
-  );
-  document
-    .getElementById("tether-change")
-    .classList.add(Number(data.tether.diff24d) < 0 ? "negative" : "positive");
+// جایگزینی تابع قبلی updateUI با تابع جدید
+function updateUI(data) {
+  updateUIWithRAF(data);
 }
 
 async function init() {
   try {
-    const data = await fetchDataSequentially();
+    const data = await fetchDataParallel();
     if (!data) throw new Error("داده‌ای دریافت نشد");
     updateUI(data);
   } catch (error) {
@@ -696,3 +681,25 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+// service-worker.js
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches
+      .match(event.request)
+      .then((response) => response || fetch(event.request))
+  );
+});
+
+function throttle(func, limit) {
+  let inThrottle;
+  return function (...args) {
+    if (!inThrottle) {
+      func.apply(this, args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+}
+
+const throttledUpdate = throttle(updateUI, 1000);

@@ -522,6 +522,17 @@ const commodityMapping = {
 function updateUIWithRAF(data) {
   if (!data) return;
 
+  const tr_akhtiyar = `
+      ${data.Top5NameKhari.map(
+        (item, index) => `
+        <tr>
+          <td colspan="3" class="p-3 text-gray-600 text-sm text-center">${item}</td>
+          <td colspan="3" class="p-3 text-gray-600 text-sm text-center">${data.Top5NameForosh[index]}</td>
+        </tr>
+      `
+      ).join("")}
+`;
+
   // برنامه‌ریزی بروزرسانی‌ها در فریم بعدی
   requestAnimationFrame(() => {
     // بروزرسانی هدر
@@ -617,6 +628,7 @@ function updateUIWithRAF(data) {
         data.top5FAkhtiyarValue;
       document.getElementById("top-akhtiyar-hafte").textContent =
         data.top5FAkhtiyarValue;
+      document.getElementById("akhtiyar-table").innerHTML += tr_akhtiyar;
     });
 
     // بروزرسانی کالاها

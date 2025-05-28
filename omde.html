@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>گزارش تغییرات سهامداران</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+
+    <style>
+      @font-face {
+        font-family: "iransans";
+        src: url("font/iransans.ttf") format("truetype");
+      }
+
+      * {
+        font-family: iransans, Arial, sans-serif;
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-b from-gray-100 to-gray-200 text-gray-800">
+    <div class="container mx-auto px-2 py-4 sm:px-4 sm:py-8">
+      <h1
+        class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center text-blue-800 mb-6 sm:mb-10 drop-shadow"
+      >
+        📈 گزارش تغییرات سهامداران عمده 📈
+      </h1>
+
+      <!-- بخش فیلتر -->
+      <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div class="col-span-full flex flex-col">
+            <label
+              for="searchInput"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >جستجو:</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="جستجو بر اساس نماد یا سهامدار..."
+                class="mt-1 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <label
+              for="minPercentChange"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >حداقل درصد تغییر:</label
+            >
+            <input
+              type="number"
+              id="minPercentChange"
+              value="5"
+              min="0"
+              step="1"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              for="entityType"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >نوع سهامدار:</label
+            >
+            <select
+              id="entityType"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="all">همه</option>
+              <option value="legal">حقوقی</option>
+              <option value="real">حقیقی</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              <input
+                type="checkbox"
+                id="hasBuyers"
+                class="form-checkbox h-4 w-4 text-green-600 rounded mr-2"
+              />
+              فقط دارای خریدار
+            </label>
+            <label class="block text-sm font-medium text-gray-700 mt-2 mb-1">
+              <input
+                type="checkbox"
+                id="hasSellers"
+                class="form-checkbox h-4 w-4 text-red-600 rounded mr-2"
+              />
+              فقط دارای فروشنده
+            </label>
+          </div>
+          <div>
+            <label
+              for="sortBy"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >مرتب‌سازی بر اساس:</label
+            >
+            <select
+              id="sortBy"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
+              <option value="name">نام نماد (الفبا)</option>
+              <option value="buyers_count">تعداد خریداران عمده</option>
+              <option value="sellers_count">تعداد فروشندگان عمده</option>
+              <option value="top_buyer_amount">بیشترین حجم خرید</option>
+              <option value="top_seller_amount">بیشترین حجم فروش</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div>
+            <label
+              for="minBuyers"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >حداقل تعداد خریداران:</label
+            >
+            <input
+              type="number"
+              id="minBuyers"
+              value="0"
+              min="0"
+              step="1"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              for="minSellers"
+              class="block text-sm font-medium text-gray-700 mb-1"
+              >حداقل تعداد فروشندگان:</label
+            >
+            <input
+              type="number"
+              id="minSellers"
+              value="0"
+              min="0"
+              step="1"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div class="col-span-full">
+            <button
+              id="applyFilters"
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md shadow-md transition duration-300 ease-in-out"
+            >
+              اعمال فیلتر و مرتب‌سازی
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- بخش نمایش داده‌ها -->
+      <div
+        id="stockContainer"
+        class="grid gap-4 sm:gap-8 md:grid-cols-2 lg:grid-cols-3"
+      ></div>
+    </div>
+
+    <script>
+      const API_URL =
+        "https://cdn.tsetmc.com/api/Shareholder/GetShareHolderChanges/false";
+
+      // Utility functions
+      function isLegalEntity(name) {
+        return ["صندوق", "شركت", "سازمان", "سهامي", "بانك", "موسسه"].some((k) =>
+          name.includes(k)
+        );
+      }
+
+      function calculateChanges(first, fifth) {
+        const net = fifth - first;
+        const base = first > 0 ? first : fifth;
+        const percent = base ? (Math.abs(net) / base) * 100 : 0;
+        return { net, percent };
+      }
+
+      // Fetch, process and render
+      async function init() {
+        try {
+          const res = await fetch(API_URL, {
+            headers: { Accept: "application/json" },
+          });
+          const raw = await res.json();
+          const data = analyze(raw.shareHoldersChanges || []);
+          window.stockData = data;
+          renderStocks(data);
+        } catch (err) {
+          console.error("خطا در دریافت داده‌ها:", err);
+        }
+      }
+
+      function analyze(changes) {
+        const results = {};
+        changes.forEach((h) => {
+          const name = h.name;
+          const legal = isLegalEntity(name);
+          h.insList.forEach((ins) => {
+            const code = ins.insCode;
+            if (!results[code])
+              results[code] = { name: ins.name, buyers: [], sellers: [] };
+            const { net, percent } = calculateChanges(
+              ins.firstDay || 0,
+              ins.fifthDay || 0
+            );
+            if (!net) return;
+            const info = {
+              shareholder: name,
+              is_legal: legal,
+              net_amount: Math.abs(net).toLocaleString("fa-IR"),
+              percent_change: percent.toFixed(2),
+            };
+            (net > 0 ? results[code].buyers : results[code].sellers).push(info);
+          });
+        });
+        return Object.values(results);
+      }
+
+      function renderStocks(data) {
+        const container = document.getElementById("stockContainer");
+        container.innerHTML = data
+          .map(
+            (stock) => `
+        <div class="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-shadow p-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-700 mb-4 sm:mb-6 border-b-2 pb-2 border-gray-200">🔹 نماد: ${
+            stock.name
+          }</h2>
+          <div class="grid grid-cols-1 gap-6">
+            ${
+              stock.buyers.length
+                ? tableSection(stock.buyers, "خریداران", "green", "✅")
+                : ""
+            }
+            ${
+              stock.sellers.length
+                ? tableSection(stock.sellers, "فروشندگان", "red", "❌")
+                : ""
+            }
+          </div>
+        </div>
+      `
+          )
+          .join("");
+      }
+
+      function tableSection(items, title, color, icon) {
+        return `
+        <div>
+          <h3 class="text-lg sm:text-xl font-semibold text-${color}-700 mb-2 border-b border-${color}-200 pb-1">${icon} ${title}</h3>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-xs sm:text-sm bg-${color}-50 rounded-xl">
+              <thead class="bg-${color}-100 text-${color}-800">
+                <tr><th class="p-2 border">سهامدار</th><th class="p-2 border">نوع</th><th class="p-2 border">تعداد</th><th class="p-2 border">درصد</th></tr>
+              </thead>
+              <tbody>
+                ${items
+                  .map(
+                    (i) =>
+                      `<tr class="text-center hover:bg-${color}-100"><td class="p-2 border break-words">${
+                        i.shareholder
+                      }</td><td class="p-2 border">${
+                        i.is_legal ? "حقوقی" : "حقیقی"
+                      }</td><td class="p-2 border">${
+                        i.net_amount
+                      }</td><td class="p-2 border">${
+                        i.percent_change
+                      }%</td></tr>`
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      }
+
+      function applyFilters() {
+        const term = document.getElementById("searchInput").value.toLowerCase();
+        const minP = +document.getElementById("minPercentChange").value;
+        const type = document.getElementById("entityType").value;
+        const hasB = document.getElementById("hasBuyers").checked;
+        const hasS = document.getElementById("hasSellers").checked;
+        const minB = +document.getElementById("minBuyers").value;
+        const minS = +document.getElementById("minSellers").value;
+        const sort = document.getElementById("sortBy").value;
+        let f = window.stockData.filter((s) => {
+          const matchS =
+            s.name.toLowerCase().includes(term) ||
+            s.buyers
+              .concat(s.sellers)
+              .some((i) => i.shareholder.toLowerCase().includes(term));
+          const matchT =
+            type === "all" ||
+            (type === "legal" &&
+              s.buyers.concat(s.sellers).some((i) => i.is_legal)) ||
+            (type === "real" &&
+              s.buyers.concat(s.sellers).some((i) => !i.is_legal));
+          const matchP = s.buyers
+            .concat(s.sellers)
+            .some((i) => +i.percent_change >= minP);
+          const matchB = !hasB || s.buyers.length > 0;
+          const matchS2 = !hasS || s.sellers.length > 0;
+          const matchMinB = s.buyers.length >= minB;
+          const matchMinS = s.sellers.length >= minS;
+          return (
+            matchS &&
+            matchT &&
+            matchP &&
+            matchB &&
+            matchS2 &&
+            matchMinB &&
+            matchMinS
+          );
+        });
+        f.sort((a, b) => {
+          if (sort === "name") return a.name.localeCompare(b.name);
+          if (sort === "buyers_count") return b.buyers.length - a.buyers.length;
+          if (sort === "sellers_count")
+            return b.sellers.length - a.sellers.length;
+          const getMax = (arr) =>
+            arr.length
+              ? Math.max(...arr.map((i) => +i.net_amount.replace(/,/g, "")))
+              : 0;
+          if (sort === "top_buyer_amount")
+            return getMax(b.buyers) - getMax(a.buyers);
+          if (sort === "top_seller_amount")
+            return getMax(b.sellers) - getMax(a.sellers);
+        });
+        renderStocks(f);
+      }
+
+      document
+        .getElementById("applyFilters")
+        .addEventListener("click", applyFilters);
+      init();
+    </script>
+  </body>
+</html>
